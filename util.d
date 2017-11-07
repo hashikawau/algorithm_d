@@ -196,20 +196,25 @@ unittest
 // ------------------------------------
 T[][] permutation(T)(T[] list, int num)
 {
+    import std.exception;
+    enforce(list.length >= num, "list.length must be longer than num");
+
     return permutation_helper(list, num);
 }
 
-private T[][] permutation_helper(T)(T[] remains, int num)
+private T[][] permutation_helper(T)(T[] list, int num)
 {
-    if(num <= 0)
+    if(list.length < num)
+        return [];
+
+    if(num <= 0 || list.length == 0)
         return [[]];
 
     import std.algorithm;
     import std.range;
-    return iota(remains.length)
-        .map!(i => permutation_helper(remains.dup().remove(i), num - 1)
-            .map!(arr => [remains[i]] ~ arr)
-            .array
+    return iota(list.length)
+        .map!(i => permutation_helper(list.dup().remove(i), num - 1)
+            .map!(arr => [list[i]] ~ arr)
         )
         .joiner()
         .array();
@@ -238,6 +243,9 @@ unittest
         [2],
         [3]
     ]);
+    assert(permutation([1, 2, 3], 0) == [
+        []
+    ]);
     assert(permutation(["a", "b", "c"], 3) == [
         ["a", "b", "c"],
         ["a", "c", "b"],
@@ -258,6 +266,9 @@ unittest
         ["a"],
         ["b"],
         ["c"]
+    ]);
+    assert(permutation(["a", "b", "c"], 0) == [
+        []
     ]);
     assert(permutation([1, 2, 3, 4], 4) == [
         [1, 2, 3, 4],
@@ -340,6 +351,9 @@ unittest
         [3],
         [4]
     ]);
+    assert(permutation([1, 2, 3, 4], 0) == [
+        []
+    ]);
 }
 
 // ------------------------------------
@@ -347,133 +361,89 @@ unittest
 // ------------------------------------
 T[][] combination(T)(T[] list, int num)
 {
-    return [[]];
+    import std.exception;
+    enforce(list.length >= num, "list.length must be longer than num");
+
+    return combination_helper(list, num);
+}
+
+private T[][] combination_helper(T)(T[] list, int num)
+{
+    if(list.length < num)
+        return [];
+
+    if(num <= 0)
+        return [[]];
+
+    import std.algorithm;
+    import std.range;
+    return iota(list.length)
+        .map!(i => combination_helper(list[i+1 .. $], num - 1)
+            .map!(arr => [list[i]] ~ arr)
+        )
+        .joiner
+        .array;
 }
 
 unittest
 {
     assert(combination([1, 2, 3], 3) == [
-        [1, 2, 3],
-        [1, 3, 2],
-        [2, 1, 3],
-        [2, 3, 1],
-        [3, 1, 2],
-        [3, 2, 1]
+        [1, 2, 3]
     ]);
     assert(combination([1, 2, 3], 2) == [
         [1, 2],
         [1, 3],
-        [2, 1],
-        [2, 3],
-        [3, 1],
-        [3, 2]
+        [2, 3]
     ]);
     assert(combination([1, 2, 3], 1) == [
         [1],
         [2],
         [3]
     ]);
+    assert(combination([1, 2, 3], 0) == [
+        []
+    ]);
     assert(combination(["a", "b", "c"], 3) == [
-        ["a", "b", "c"],
-        ["a", "c", "b"],
-        ["b", "a", "c"],
-        ["b", "c", "a"],
-        ["c", "a", "b"],
-        ["c", "b", "a"]
+        ["a", "b", "c"]
     ]);
     assert(combination(["a", "b", "c"], 2) == [
         ["a", "b"],
         ["a", "c"],
-        ["b", "a"],
-        ["b", "c"],
-        ["c", "a"],
-        ["c", "b"]
+        ["b", "c"]
     ]);
     assert(combination(["a", "b", "c"], 1) == [
         ["a"],
         ["b"],
         ["c"]
     ]);
+    assert(combination(["a", "b", "c"], 0) == [
+        []
+    ]);
     assert(combination([1, 2, 3, 4], 4) == [
-        [1, 2, 3, 4],
-        [1, 2, 4, 3],
-        [1, 3, 2, 4],
-        [1, 3, 4, 2],
-        [1, 4, 2, 3],
-        [1, 4, 3, 2],
-
-        [2, 1, 3, 4],
-        [2, 1, 4, 3],
-        [2, 3, 1, 4],
-        [2, 3, 4, 1],
-        [2, 4, 1, 3],
-        [2, 4, 3, 1],
-
-        [3, 1, 2, 4],
-        [3, 1, 4, 2],
-        [3, 2, 1, 4],
-        [3, 2, 4, 1],
-        [3, 4, 1, 2],
-        [3, 4, 2, 1],
-
-        [4, 1, 2, 3],
-        [4, 1, 3, 2],
-        [4, 2, 1, 3],
-        [4, 2, 3, 1],
-        [4, 3, 1, 2],
-        [4, 3, 2, 1]
+        [1, 2, 3, 4]
     ]);
     assert(combination([1, 2, 3, 4], 3) == [
         [1, 2, 3],
         [1, 2, 4],
-        [1, 3, 2],
         [1, 3, 4],
-        [1, 4, 2],
-        [1, 4, 3],
-
-        [2, 1, 3],
-        [2, 1, 4],
-        [2, 3, 1],
-        [2, 3, 4],
-        [2, 4, 1],
-        [2, 4, 3],
-
-        [3, 1, 2],
-        [3, 1, 4],
-        [3, 2, 1],
-        [3, 2, 4],
-        [3, 4, 1],
-        [3, 4, 2],
-
-        [4, 1, 2],
-        [4, 1, 3],
-        [4, 2, 1],
-        [4, 2, 3],
-        [4, 3, 1],
-        [4, 3, 2]
+        [2, 3, 4]
     ]);
     assert(combination([1, 2, 3, 4], 2) == [
         [1, 2],
         [1, 3],
         [1, 4],
-
-        [2, 1],
         [2, 3],
         [2, 4],
-
-        [3, 1],
-        [3, 2],
-        [3, 4],
-
-        [4, 1],
-        [4, 2],
-        [4, 3]
+        [3, 4]
     ]);
     assert(combination([1, 2, 3, 4], 1) == [
         [1],
         [2],
         [3],
         [4]
+    ]);
+    assert(combination([1, 2, 3, 4], 0) == [
+        []
     ]);
 }
 
@@ -516,8 +486,6 @@ class Decision
 
     public ResultTable execute()
     {
-        import std.stdio;
-
         int[Pair] pairScore = createPairScore();
 
         import std.algorithm;
