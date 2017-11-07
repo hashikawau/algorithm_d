@@ -192,7 +192,7 @@ unittest
 }
 
 // ------------------------------------
-// marriage
+// Permutation
 // ------------------------------------
 T[][] permutation(T)(T[] list, int num)
 {
@@ -342,6 +342,144 @@ unittest
     ]);
 }
 
+// ------------------------------------
+// Combination
+// ------------------------------------
+T[][] combination(T)(T[] list, int num)
+{
+    return [[]];
+}
+
+unittest
+{
+    assert(combination([1, 2, 3], 3) == [
+        [1, 2, 3],
+        [1, 3, 2],
+        [2, 1, 3],
+        [2, 3, 1],
+        [3, 1, 2],
+        [3, 2, 1]
+    ]);
+    assert(combination([1, 2, 3], 2) == [
+        [1, 2],
+        [1, 3],
+        [2, 1],
+        [2, 3],
+        [3, 1],
+        [3, 2]
+    ]);
+    assert(combination([1, 2, 3], 1) == [
+        [1],
+        [2],
+        [3]
+    ]);
+    assert(combination(["a", "b", "c"], 3) == [
+        ["a", "b", "c"],
+        ["a", "c", "b"],
+        ["b", "a", "c"],
+        ["b", "c", "a"],
+        ["c", "a", "b"],
+        ["c", "b", "a"]
+    ]);
+    assert(combination(["a", "b", "c"], 2) == [
+        ["a", "b"],
+        ["a", "c"],
+        ["b", "a"],
+        ["b", "c"],
+        ["c", "a"],
+        ["c", "b"]
+    ]);
+    assert(combination(["a", "b", "c"], 1) == [
+        ["a"],
+        ["b"],
+        ["c"]
+    ]);
+    assert(combination([1, 2, 3, 4], 4) == [
+        [1, 2, 3, 4],
+        [1, 2, 4, 3],
+        [1, 3, 2, 4],
+        [1, 3, 4, 2],
+        [1, 4, 2, 3],
+        [1, 4, 3, 2],
+
+        [2, 1, 3, 4],
+        [2, 1, 4, 3],
+        [2, 3, 1, 4],
+        [2, 3, 4, 1],
+        [2, 4, 1, 3],
+        [2, 4, 3, 1],
+
+        [3, 1, 2, 4],
+        [3, 1, 4, 2],
+        [3, 2, 1, 4],
+        [3, 2, 4, 1],
+        [3, 4, 1, 2],
+        [3, 4, 2, 1],
+
+        [4, 1, 2, 3],
+        [4, 1, 3, 2],
+        [4, 2, 1, 3],
+        [4, 2, 3, 1],
+        [4, 3, 1, 2],
+        [4, 3, 2, 1]
+    ]);
+    assert(combination([1, 2, 3, 4], 3) == [
+        [1, 2, 3],
+        [1, 2, 4],
+        [1, 3, 2],
+        [1, 3, 4],
+        [1, 4, 2],
+        [1, 4, 3],
+
+        [2, 1, 3],
+        [2, 1, 4],
+        [2, 3, 1],
+        [2, 3, 4],
+        [2, 4, 1],
+        [2, 4, 3],
+
+        [3, 1, 2],
+        [3, 1, 4],
+        [3, 2, 1],
+        [3, 2, 4],
+        [3, 4, 1],
+        [3, 4, 2],
+
+        [4, 1, 2],
+        [4, 1, 3],
+        [4, 2, 1],
+        [4, 2, 3],
+        [4, 3, 1],
+        [4, 3, 2]
+    ]);
+    assert(combination([1, 2, 3, 4], 2) == [
+        [1, 2],
+        [1, 3],
+        [1, 4],
+
+        [2, 1],
+        [2, 3],
+        [2, 4],
+
+        [3, 1],
+        [3, 2],
+        [3, 4],
+
+        [4, 1],
+        [4, 2],
+        [4, 3]
+    ]);
+    assert(combination([1, 2, 3, 4], 1) == [
+        [1],
+        [2],
+        [3],
+        [4]
+    ]);
+}
+
+// ------------------------------------
+// marriage
+// ------------------------------------
 class Decision
 {
     public static Decision create()
@@ -385,24 +523,24 @@ class Decision
         import std.algorithm;
         import std.range;
         import std.typecons;
-        permutation(boys, girls.length)
+        CombinationScore highest = permutation(boys, girls.length)
             .map!(boyList => zip(girls, boyList)
                 .map!(t => Pair(t[0], t[1])))
             .map!(pairs => CombinationScore(
                 pairs.array,
                 reduce!((score, pair) => score * pairScore[pair])(1, pairs)))
+            .array
+            .sort!((l, r) => l.combinationScore < r.combinationScore)
+            [0]
+            ;
 
-//            .map!(tList => tuple(
-//                tList,
-//                reduce!((l, r) => l * r)(1, tList
-//                    .map!(t => pairScore[t[0]][t[1]])
-//                    .array
-//                )))
-            .writeln();
-
-        return ResultTable([
-            "a": "z"
-        ]);
+        string[string] dictionary;
+        foreach(pair; highest.pairs)
+        {
+            dictionary[pair.girl] = pair.boy;
+            dictionary[pair.boy] = pair.girl;
+        }
+        return ResultTable(dictionary);
     }
     private int[Pair] createPairScore()
     {
@@ -412,32 +550,20 @@ class Decision
                 girlToBoyRank[Pair(girlName, boyName)] = i + 1;
             }
         }
-//        int[string][string] a;
-//        foreach(girlName, boyRanking; girlsBoyRanking){
-//            foreach(i, boyName; boyRanking){
-//                a[girlName][boyName] = i + 1;
-//            }
-//        }
         int[Pair] boyToGirlRanking;
         foreach(boyName, girlRanking; boysGirlRanking){
             foreach(i, girlName; girlRanking){
                 boyToGirlRanking[Pair(girlName, boyName)] = i + 1;
             }
         }
-//        int[string][string] b;
-//        foreach(boyName, girlRanking; boysGirlRanking){
-//            foreach(i, girlName; girlRanking){
-//                b[girlName][boyName] = i + 1;
-//            }
-//        }
-        int[Pair] result;
+        int[Pair] pairScore;
         foreach(girlName; girls){
             foreach(boyName; boys){
                 Pair p = Pair(girlName, boyName);
-                result[p] = girlToBoyRank[p] * boyToGirlRanking[p];
+                pairScore[p] = girlToBoyRank[p] * boyToGirlRanking[p];
             }
         }
-        return result;
+        return pairScore;
     }
     struct Pair
     {
@@ -463,6 +589,8 @@ class Decision
             this._combinationScore = combinationScore;
         }
 
+        @property
+        public Pair[] pairs(){ return _pairs; }
         @property
         public int combinationScore(){ return _combinationScore; }
     }
