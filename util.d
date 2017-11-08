@@ -450,6 +450,33 @@ unittest
 // ------------------------------------
 // marriage
 // ------------------------------------
+struct Girl
+{
+    private string _name;
+    private Boy[] _favourites;
+    public this(string name) { _name = name; }
+    @property
+    public string name(){ return _name; }
+    @property
+    public ref Boy[] favourites(){ return _favourites; }
+}
+
+struct Boy
+{
+    private string _name;
+    private Girl[] _favourites;
+    public this(string name) { _name = name; }
+    @property
+    public string name(){ return _name; }
+    @property
+    public ref Girl[] favourites(){ return _favourites; }
+}
+
+struct Favourite
+{
+    
+}
+
 class Decision
 {
     public static Decision create()
@@ -457,30 +484,38 @@ class Decision
         return new Decision();
     }
 
-    private string[] girls;
-    private string[] boys;
-    private string[][string] girlsBoyRanking;
-    private string[][string] boysGirlRanking;
+    private string[] _girls;
+    private string[] _boys;
+    private string[][string] _girlsBoyRanking;
+    private string[][string] _boysGirlRanking;
+    private Girl[] _girls2;
+    private Boy[] _boys2;
 
-    public Decision addGirl(string name)
+    public Decision add(string name)
     {
-        girls ~= name;
+        _girls ~= name;
         return this;
     }
-    public Decision addBoy(string name)
+
+    public Decision girl(string name)
     {
-        boys ~= name;
+        _girls ~= name;
+        return this;
+    }
+    public Decision boy(string name)
+    {
+        _boys ~= name;
         return this;
     }
 
     public Decision setGirlsBoyRanking(string name, string[] rankList)
     {
-        girlsBoyRanking[name] = rankList;
+        _girlsBoyRanking[name] = rankList;
         return this;
     }
     public Decision setBoysGirlRanking(string name, string[] rankList)
     {
-        boysGirlRanking[name] = rankList;
+        _boysGirlRanking[name] = rankList;
         return this;
     }
 
@@ -491,8 +526,8 @@ class Decision
         import std.algorithm;
         import std.range;
         import std.typecons;
-        CombinationScore highest = permutation(boys, girls.length)
-            .map!(boyList => zip(girls, boyList)
+        CombinationScore highest = permutation(_boys, _girls.length)
+            .map!(boyList => zip(_girls, boyList)
                 .map!(t => Pair(t[0], t[1])))
             .map!(pairs => CombinationScore(
                 pairs.array,
@@ -513,20 +548,20 @@ class Decision
     private int[Pair] createPairScore()
     {
         int[Pair] girlToBoyRank;
-        foreach(girlName, boyRanking; girlsBoyRanking){
+        foreach(girlName, boyRanking; _girlsBoyRanking){
             foreach(i, boyName; boyRanking){
                 girlToBoyRank[Pair(girlName, boyName)] = i + 1;
             }
         }
         int[Pair] boyToGirlRanking;
-        foreach(boyName, girlRanking; boysGirlRanking){
+        foreach(boyName, girlRanking; _boysGirlRanking){
             foreach(i, girlName; girlRanking){
                 boyToGirlRanking[Pair(girlName, boyName)] = i + 1;
             }
         }
         int[Pair] pairScore;
-        foreach(girlName; girls){
-            foreach(boyName; boys){
+        foreach(girlName; _girls){
+            foreach(boyName; _boys){
                 Pair p = Pair(girlName, boyName);
                 pairScore[p] = girlToBoyRank[p] * boyToGirlRanking[p];
             }
@@ -582,12 +617,12 @@ struct ResultTable
 unittest
 {
     Decision d = Decision.create()
-        .addGirl("a")
-        .addGirl("b")
-        .addGirl("c")
-        .addBoy("x")
-        .addBoy("y")
-        .addBoy("z")
+        .girl("a")
+        .girl("b")
+        .girl("c")
+        .boy("x")
+        .boy("y")
+        .boy("z")
         .setGirlsBoyRanking("a", ["x", "y", "z"])
         .setGirlsBoyRanking("b", ["x", "z", "y"])
         .setGirlsBoyRanking("c", ["y", "x", "z"])
