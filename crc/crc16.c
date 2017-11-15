@@ -30,3 +30,13 @@ unsigned int crc2(int n, byte c[])
     }
     return r ^ 0xFFFFU;
 }
+
+#include <stdio.h>
+#include <string.h>
+int main()
+{
+    byte b[] = "hello, world";
+    printf("crc1: %s -> %d\n", b, crc1(strlen(b), b));
+    printf("crc2: %s -> %d\n", b, crc2(strlen(b), b));
+    return 0;
+}

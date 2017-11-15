@@ -51,3 +51,16 @@ unsigned long crc2(int n, byte c[])
         r = (r >> CHAR_BIT) ^ crctable[(byte)r ^ *c++];
     return r ^ 0xFFFFFFFFUL;
 }
+
+#include <stdio.h>
+#include <string.h>
+int main()
+{
+    makecrctable1();
+    makecrctable2();
+
+    byte b[] = "hello, world";
+    printf("crc1: %s -> %d\n", b, crc1(strlen(b), b));
+    printf("crc2: %s -> %d\n", b, crc2(strlen(b), b));
+    return 0;
+}
