@@ -7,6 +7,8 @@
 #define M 128
 char a[N + 2][M + 2], b[N + 2][M + 2];
 
+#define NUM_OF_GENERATIONS 1000
+
 void clrscr()
 {
     system("clear");
@@ -91,17 +93,32 @@ void init_const_3()
     a[ 6 + centerN][ 4 + centerM] = 1;
 }
 
+void init_from_file_32_128()
+{
+    FILE *file;
+    char lifes[M+2];
+    file = fopen("./initial.txt", "r");
+    for(int i = 0; i < N; ++i) {
+        fgets(lifes, M + 2, file);
+        for (int j = 0; j < M; ++j) {
+            a[i + 1][j + 1] = (lifes[j] == '*');
+        }
+    }
+    fclose(file);
+}
+
 int main()
 {
     int i, j, g;
 
-    init_1();
+    init_from_file_32_128();
+    // init_1();
     // init_2();
     // init_const_1();
     // init_const_2();
     // init_const_3();
 
-    for (g = 1; g <= 1000; g++) {
+    for (g = 1; g <= NUM_OF_GENERATIONS; g++) {
         clrscr();
         printf("Generation %4d\n", g);
         for (i = 1; i <= N; i++) {
@@ -123,7 +140,7 @@ int main()
                 b[i][j] = 0;
             }
         fflush(stdout);
-        usleep(199999);
+        usleep(50000);
     }
     return EXIT_SUCCESS;
 }
