@@ -1,19 +1,22 @@
-#include <assert.h>
-#include "strmatch.h"
-
-#include <stdio.h>
-int main()
+int position(string text, string pattern)
 {
-//    char text[] = "abcabcaba";
-//    char pattern[] = "abcaba";
-//    printf("text=%s, pattern=%s, position=%d\n",
-//        text,
-//        pattern,
-//        position(text, pattern));
-//    printf("text=%s, pattern=%s, position=%d\n",
-//        text,
-//        pattern,
-//        position_2(text, pattern));
+    // error
+    if (text.length == 0
+    || pattern.length == 0
+    || text.length < pattern.length)
+        return -1;
+
+    for (int i = 0; i < text.length - pattern.length + 1; ++i) {
+        if(text[i .. i + pattern.length] == pattern)
+            // find match
+            return i;
+    }
+
+    // find no match
+    return -1;
+}
+unittest
+{
     assert(position("", "") == -1);
     assert(position("", "a") == -1);
     assert(position("", "abc") == -1);
@@ -40,5 +43,4 @@ int main()
     assert(position("abcabc", "abc") == 0);
 
     assert(position("abcabcaba", "abcaba") == 3);
-    return 0;
 }
