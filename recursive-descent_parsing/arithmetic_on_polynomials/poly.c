@@ -2,31 +2,31 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-/** use complex number: 1, else 0 */ #define COMPLEX 1
+#define COMPLEX 1 /** use complex number: 1, else 0 */
 typedef enum {FALSE, TRUE} boolean;
 #define odd(n) ((n) & 1)
 
-/** max number of variable */ #define N_LETTER 4
+#define N_LETTER 4 /** max number of variable */
 
-/** coefficient, sign number */ typedef long int coeftype;
-/** exponential, unsign number */ typedef unsigned short int expotype;
-/** a term of polynomials */ typedef struct node_ {
-    /** exponential */ expotype expo[N_LETTER];
-    /** real part */ coeftype real;
+typedef long int coeftype; /** coefficient, sign number */
+typedef unsigned short int expotype; /** exponential, unsign number */
+typedef struct node_ { /** a term of polynomials */
+    expotype expo[N_LETTER]; /** exponential */
+    coeftype real; /** real part */
     #if COMPLEX
-        /** imaginary part */ coeftype imag;
+        coeftype imag; /** imaginary part */
     #endif
-    /** next term */ struct node_ *next;
+    struct node_ *next; /** next term */
 } node;
 
-/** positions of each variable */ int table[26];
-/** available cell */ node *avail;
-/** polynomials assigned to each variable */ node *value[26];
-/** a list of all variables */ char letter[N_LETTER];
-/** a number of using cells */ unsigned int cells;
-/** max number of avaiable cells */ unsigned int max_cells;
-/** current character */ int ch;
-/** current coefficient */ coeftype num;
+int table[26]; /** positions of each variable */
+node *avail; /** available cell */
+node *value[26]; /** polynomials assigned to each variable */
+char letter[N_LETTER]; /** a list of all variables */
+unsigned int cells; /** a number of using cells */
+unsigned int max_cells; /** max number of avaiable cells */
+int ch; /** current character */
+coeftype num; /** current coefficient */
 
 void error(char *message)
 {
@@ -58,14 +58,14 @@ node *new_node(void)
 {
     node *p;
 
-        if (avail == NULL) {
-            p = malloc(sizeof(node));
-            if (p == NULL) error("out of memory");
-        } else {
-            p = avail; avail = p->next;
-        }
-        if (++cells > max_cells) max_cells = cells;
-        return p;
+    if (avail == NULL) {
+        p = malloc(sizeof(node));
+        if (p == NULL) error("out of memory");
+    } else {
+        p = avail; avail = p->next;
+    }
+    if (++cells > max_cells) max_cells = cells;
+    return p;
 }
 
 void dispose_node(node *p)
@@ -73,7 +73,7 @@ void dispose_node(node *p)
     p->next = avail; avail = p; cells--;
 }
 
-/*** delete polynomial */ void dispose(node *p)
+void dispose(node *p) /*** delete polynomial */
 {
     node *q;
 
@@ -279,7 +279,7 @@ node *power(node *x, expotype n)
             p = constant(1);
         #endif
     } else {
-        p = multiply(x, x); n - 2;
+        p = multiply(x, x); n -= 2;
         if (n > 0) {
             q = p;
             if (odd(n)) p = multiply(q, x);
@@ -532,7 +532,7 @@ void print(void)
                 if (! one) printf(" * ");
                 one = FALSE;
                 printf("%c", letter[i]);
-                if (e = 1)
+                if (e != 1)
                     printf("^%lu",
                         (unsigned long int) e);
             }
@@ -591,7 +591,7 @@ int main()
         else if (isalpha(ch)) assign();
         else error("illegal statement");
         if (ch != ';') error("no ';' character");
-        printf("\n%u cells available, (%u cells using)\n",
+        printf("\n%u cells created, (%u cells using)\n",
             max_cells, cells);
         max_cells = cells;
     }
