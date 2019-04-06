@@ -1,1 +1,1 @@
-# sample_d
+# algorithm_puzzles
